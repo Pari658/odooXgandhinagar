@@ -7,7 +7,7 @@ import helmet from 'helmet';
 import { clerkMiddleware } from '@clerk/express';
 
 // import authRoutes from './routes/auth.routes.js';
-// import vehicleRoutes from './routes/vehicles.routes.js';
+ import vehicleRoutes from './routes/vehicles.routes.js';
 // import driverRoutes from './routes/drivers.routes.js';
 // import tripRoutes from './routes/trips.routes.js';
 // import maintenanceRoutes from './routes/maintenance.routes.js';
@@ -47,7 +47,7 @@ app.use('/api/dashboard', reportsRoutes);
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 // app.use('/api/auth', authRoutes);
-// app.use('/api/vehicles', vehicleRoutes);
+app.use('/api/vehicles', vehicleRoutes);
 // app.use('/api/drivers', driverRoutes);
 // app.use('/api/trips', tripRoutes);
 // app.use('/api/maintenance', maintenanceRoutes);
