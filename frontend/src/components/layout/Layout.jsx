@@ -17,17 +17,17 @@ const Layout = () => {
     : '??';
 
   const navItems = [
-    { name: 'Dashboard', path: '/', icon: LayoutDashboard },
-    { name: 'Drivers', path: '/drivers', icon: Users },
-    { name: 'Vehicles', path: '/vehicles', icon: Truck },
-    { name: 'Trips', path: '/trips', icon: Navigation },
-    { name: 'Maintenance', path: '/maintenance', icon: Wrench },
-    { name: 'Fuel', path: '/fuel', icon: Fuel },
-    { name: 'Reports', path: '/reports', icon: FileText },
+    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    { name: 'Drivers', path: '/dashboard/drivers', icon: Users },
+    { name: 'Vehicles', path: '/dashboard/vehicles', icon: Truck },
+    { name: 'Trips', path: '/dashboard/trips', icon: Navigation },
+    { name: 'Maintenance', path: '/dashboard/maintenance', icon: Wrench },
+    { name: 'Fuel', path: '/dashboard/fuel', icon: Fuel },
+    { name: 'Reports', path: '/dashboard/reports', icon: FileText },
   ];
 
   if (role === 'Fleet Manager') {
-    navItems.push({ name: 'User Admin', path: '/admin/users', icon: Shield });
+    navItems.push({ name: 'User Admin', path: '/dashboard/admin/users', icon: Shield });
   }
 
   return (
@@ -45,7 +45,7 @@ const Layout = () => {
         <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
+            const isActive = location.pathname === item.path || (item.path !== '/dashboard' && location.pathname.startsWith(item.path));
 
             return (
               <Link
