@@ -11,7 +11,8 @@ import { clerkMiddleware } from '@clerk/express';
 // import maintenanceRoutes from './routes/maintenance.routes.js';
 // import fuelRoutes from './routes/fuel.routes.js';
 // import expenseRoutes from './routes/expenses.routes.js';
-// import reportRoutes from './routes/reports.routes.js';
+import reportRoutes from './routes/reports.routes.js';
+import webhookRoutes from './routes/webhooks.routes.js';
 
 // import { errorHandler } from './middleware/errorHandler.js';
 
@@ -30,16 +31,17 @@ app.use(
 );
 
 app.use(clerkMiddleware());
-
 app.use(
   '/api/webhooks',
   express.raw({ type: 'application/json' }),
-  // webhookRoutes
+  webhookRoutes
 );
 
 app.use(express.json());
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
+app.use('/api/dashboard', reportsRoutes);
+
 
 // app.use('/api/auth', authRoutes);
 // app.use('/api/vehicles', vehicleRoutes);
@@ -48,7 +50,7 @@ app.get('/health', (req, res) => res.json({ status: 'ok' }));
 // app.use('/api/maintenance', maintenanceRoutes);
 // app.use('/api/fuel', fuelRoutes);
 // app.use('/api/expenses', expenseRoutes);
-// app.use('/api/reports', reportRoutes);
+app.use('/api/reports', reportRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ success: false, message: 'Route not found.' });
