@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@clerk/clerk-react';
+import { useClerkAxios } from '../lib/apiClient';
 import StatCard from '../components/dashboard/StatCard';
 import { Truck, Activity, Wrench, CheckCircle, Navigation, Users, Percent } from 'lucide-react';
 
 const Dashboard = () => {
-  const { getToken } = useAuth();
+  const api = useClerkAxios();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -12,26 +12,21 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const token = await getToken();
-        const response = await fetch('http://localhost:5000/api/dashboard/stats', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        if (!response.ok) {
-          throw new Error('Failed to fetch stats');
+        const response = await api.get('/dashboard/stats');
+        if (response.data.success) {
+          setStats(response.data.data);
+        } else {
+          setError('Failed to fetch stats');
         }
-        const data = await response.json();
-        setStats(data.data);
       } catch (err) {
-        setError(err.message);
+        setError(err.response?.data?.message || err.message);
       } finally {
         setLoading(false);
       }
     };
 
     fetchStats();
-  }, []);
+  }, [api]);
 
   return (
     <div className="p-8">

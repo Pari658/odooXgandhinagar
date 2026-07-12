@@ -1,15 +1,17 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Truck, Wrench, Fuel, FileText } from 'lucide-react';
+import { useClerk } from '@clerk/clerk-react';
+import { LayoutDashboard, Users, Truck, Wrench, Fuel, FileText, Navigation, LogOut } from 'lucide-react';
 
 const Layout = () => {
   const location = useLocation();
+  const { signOut } = useClerk();
 
   const navItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
     { name: 'Drivers', path: '/drivers', icon: Users },
     { name: 'Vehicles', path: '/vehicles', icon: Truck },
-    { name: 'Trips', path: '/trips', icon: Truck }, // Using truck for now
+    { name: 'Trips', path: '/trips', icon: Navigation },
     { name: 'Maintenance', path: '/maintenance', icon: Wrench },
     { name: 'Fuel', path: '/fuel', icon: Fuel },
     { name: 'Reports', path: '/reports', icon: FileText },
@@ -51,16 +53,24 @@ const Layout = () => {
           })}
         </nav>
         
-        <div className="p-4 border-t border-emerald-900">
+        <div className="p-4 border-t border-emerald-900 space-y-3">
           <div className="flex items-center gap-3 px-3 py-2">
             <div className="w-8 h-8 rounded-full bg-emerald-800 flex items-center justify-center text-sm font-medium">
               FM
             </div>
             <div className="flex flex-col">
               <span className="text-sm font-medium text-white">Fleet Manager</span>
-              <span className="text-xs text-emerald-300">View Profile</span>
+              <span className="text-xs text-emerald-300">Logged In</span>
             </div>
           </div>
+          <button
+            onClick={() => signOut()}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-emerald-100 hover:bg-emerald-900/50 hover:text-white transition-colors"
+            title="Sign out"
+          >
+            <LogOut size={18} className="text-emerald-400" />
+            Sign Out
+          </button>
         </div>
       </aside>
 

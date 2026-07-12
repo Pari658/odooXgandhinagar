@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@clerk/clerk-react';
+import { useClerkAxios } from '../lib/apiClient';
 import DataTable from '../components/tables/DataTable';
 import StatusBadge from '../components/ui/StatusBadge';
 import DriverFormModal from '../components/drivers/DriverFormModal';
 import { Plus, Search } from 'lucide-react';
 
 const Drivers = () => {
-  const { getToken } = useAuth();
+  const api = useClerkAxios();
   const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -17,19 +17,18 @@ const Drivers = () => {
 
   useEffect(() => {
     fetchDrivers();
-  }, []);
+  }, [api]);
 
   const fetchDrivers = async () => {
     try {
-      const token = await getToken();
-      const response = await fetch('http://localhost:5000/api/drivers', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!response.ok) throw new Error('Failed to fetch drivers');
-      const data = await response.json();
-      setDrivers(data.data);
+      const response = await api.get('/drivers');
+      if (response.data.success) {
+        setDrivers(response.data.data);
+      } else {
+        setError('Failed to fetch drivers');
+      }
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || 'Failed to fetch drivers');
     } finally {
       setLoading(false);
     }
