@@ -5,7 +5,7 @@ import helmet from 'helmet';
 import { query } from './config/db.js';
 import fuelRoutes from './routes/fuel.routes.js';
 import expenseRoutes from './routes/expenses.routes.js';
-import reportsRoutes from './routes/reports.routes.js';
+import reportRoutes from './routes/reports.routes.js';
 import vehicleRoutes from './routes/vehicles.routes.js';
 import driversRoutes from './routes/drivers.routes.js';
 import tripRoutes from './routes/trips.routes.js';
@@ -43,7 +43,8 @@ app.use(express.json());
 // Register API routes
 app.use('/api/fuel', fuelRoutes);
 app.use('/api/expenses', expenseRoutes);
-app.use('/api/dashboard', reportsRoutes);
+app.use('/api/dashboard', reportRoutes); // Serves their dashboard stats
+app.use('/api/reports', reportRoutes);   // Serves our KPIs, vehicle reports, and export
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/drivers', driversRoutes);
 app.use('/api/trips', tripRoutes);

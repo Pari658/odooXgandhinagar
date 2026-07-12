@@ -9,21 +9,7 @@ import Vehicles from './pages/Vehicles';
 import Maintenance from './pages/Maintenance';
 import Trips from './pages/Trips';
 import FuelExpenses from './pages/FuelExpenses';
-
-const Placeholder = ({ title }) => (
-  <div className="p-8">
-    <div className="flex items-center space-x-2 text-sm text-gray-500 mb-2">
-      <span>TransitOps</span>
-      <span>/</span>
-      <span>{title}</span>
-    </div>
-    <h1 className="text-2xl font-semibold tracking-tight text-gray-900">{title}</h1>
-    <div className="mt-6 border border-dashed border-gray-200 rounded-lg p-12 text-center bg-gray-50/50">
-      <p className="text-sm font-medium text-gray-900">Module under construction</p>
-      <p className="mt-1 text-sm text-gray-500">The {title} dashboard is being integrated by another team.</p>
-    </div>
-  </div>
-);
+import Reports from './pages/Reports';
 
 export default function App() {
   return (
@@ -82,7 +68,7 @@ export default function App() {
             <Route path="maintenance" element={<Maintenance />} />
             <Route path="trips" element={<Trips />} />
             <Route path="fuel" element={<FuelExpenses />} />
-            <Route path="reports" element={<Placeholder title="Reports & Analytics" />} />
+            <Route path="reports" element={<Reports />} />
             
             {/* Redirect unknown routes to Dashboard */}
             <Route path="*" element={<Navigate to="/" replace />} />
