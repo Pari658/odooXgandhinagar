@@ -31,8 +31,7 @@ app.use(
   })
 );
 
-// Temporarily skipping Clerk auth for development
-// app.use(clerkMiddleware());
+app.use(clerkMiddleware());
 
 app.use(
   '/api/webhooks',
