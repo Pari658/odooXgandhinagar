@@ -23,7 +23,7 @@ export default function Vehicles() {
       const res = await fetch(API_URL);
       if (!res.ok) throw new Error('Failed to retrieve fleet master logs.');
       const data = await res.json();
-      setVehicles(data);
+      setVehicles(data.vehicles);
     } catch (err) {
       setError(err.message);
     }
