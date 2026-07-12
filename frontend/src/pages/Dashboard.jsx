@@ -1,17 +1,23 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '@clerk/clerk-react';
 import StatCard from '../components/dashboard/StatCard';
 import { Truck, Activity, Wrench, CheckCircle, Navigation, Users, Percent } from 'lucide-react';
 
 const Dashboard = () => {
+  const { getToken } = useAuth();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // We are skipping Clerk auth for now as requested, so no headers needed
     const fetchStats = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/dashboard/stats');
+        const token = await getToken();
+        const response = await fetch('http://localhost:5000/api/dashboard/stats', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         if (!response.ok) {
           throw new Error('Failed to fetch stats');
         }
