@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import { query } from './config/db.js'; 
 import reportsRoutes from './routes/reports.routes.js';
+import driversRoutes from './routes/drivers.routes.js';
 import helmet from 'helmet';
 import { clerkMiddleware } from '@clerk/express';
 
@@ -42,6 +43,7 @@ app.use(
 app.use(express.json());
 
 app.use('/api/dashboard', reportsRoutes);
+app.use('/api/drivers', driversRoutes);
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
