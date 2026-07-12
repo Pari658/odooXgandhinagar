@@ -2,24 +2,19 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import helmet from 'helmet';
+
+// Route Imports
 import authRoutes from './routes/auth.routes.js';
 import reportsRoutes from './routes/reports.routes.js';
 import driversRoutes from './routes/drivers.routes.js';
 import vehicleRoutes from './routes/vehicles.routes.js';
 import tripRoutes from './routes/trips.routes.js';
 import maintenanceRoutes from './routes/maintenance.routes.js';
-import reportRoutes from './routes/reports.routes.js';
-import { query } from './config/db.js';
 import fuelRoutes from './routes/fuel.routes.js';
 import expenseRoutes from './routes/expenses.routes.js';
-import reportRoutes from './routes/reports.routes.js';
-import vehicleRoutes from './routes/vehicles.routes.js';
-import driversRoutes from './routes/drivers.routes.js';
-import tripRoutes from './routes/trips.routes.js';
-import maintenanceRoutes from './routes/maintenance.routes.js';
-import webhookRoutes from './routes/webhooks.routes.js';
+
+// Middleware
 import { errorHandler } from './middleware/errorHandler.js';
-import { clerkMiddleware } from '@clerk/express';
 
 dotenv.config();
 
@@ -42,18 +37,19 @@ app.use(
 
 app.use(express.json());
 
+// Health check endpoint
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
+// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', reportsRoutes);
 app.use('/api/drivers', driversRoutes);
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/trips', tripRoutes);
 app.use('/api/maintenance', maintenanceRoutes);
-app.use('/api/reports', reportRoutes);
-
-// Health check endpoint
-app.get('/health', (req, res) => res.json({ status: 'ok' }));
+app.use('/api/reports', reportsRoutes);
+app.use('/api/fuel', fuelRoutes);
+app.use('/api/expenses', expenseRoutes);
 
 // 404 Route handler
 app.use((req, res) => {
