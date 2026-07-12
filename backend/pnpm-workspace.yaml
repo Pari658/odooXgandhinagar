@@ -1,0 +1,4 @@
+allowBuilds:
+  '@clerk/shared': set this to true or false
+minimumReleaseAgeExclude:
+  - helmet@8.3.0
