@@ -31,7 +31,7 @@ app.use(
 // 🔐 Clerk authentication middleware
 app.use(clerkMiddleware());
 
-// 🪝 Clerk Webhook endpoint
+// 🪝 Clerk Webhook endpoint (must be registered before express.json() raw parsing)
 app.use(
   '/api/webhooks',
   express.raw({ type: 'application/json' }),
