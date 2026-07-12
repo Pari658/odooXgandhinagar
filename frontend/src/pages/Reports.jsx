@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Download, TrendingUp, DollarSign, Fuel, Activity, Search } from 'lucide-react';
-import { useClerkAxios } from '../lib/apiClient';
+import { useApi } from '../lib/apiClient';
 
 export default function Reports() {
-  const api = useClerkAxios();
+  const api = useApi();
   const [kpis, setKpis] = useState({
     fleet_utilization: 0,
     total_operational_cost: 0,

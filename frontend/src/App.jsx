@@ -10,6 +10,7 @@ import Vehicles from './pages/Vehicles';
 import Maintenance from './pages/Maintenance';
 import Trips from './pages/Trips';
 import FuelExpenses from './pages/FuelExpenses';
+import Reports from './pages/Reports';
 import AdminUsers from './pages/AdminUsers';
 import Signup from './pages/Signup';
 import ForgotPassword from './pages/ForgotPassword';
@@ -53,6 +54,7 @@ const AppRoutes = () => {
           <Route path="maintenance" element={<Maintenance />} />
           <Route path="trips" element={<Trips />} />
           <Route path="fuel" element={<FuelExpenses />} />
+          <Route path="reports" element={<Reports />} />
 
           <Route element={<ProtectedRoute allowedRoles={['Fleet Manager']} />}>
             <Route path="admin/users" element={<AdminUsers />} />
