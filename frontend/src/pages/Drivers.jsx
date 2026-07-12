@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import DataTable from '../components/tables/DataTable';
 import StatusBadge from '../components/ui/StatusBadge';
+import DriverFormModal from '../components/drivers/DriverFormModal';
 import { Plus, Search } from 'lucide-react';
 
 const Drivers = () => {
@@ -11,8 +12,8 @@ const Drivers = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // We will add the Modal state in the next step, for now let's just render the table
-  // const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedDriver, setSelectedDriver] = useState(null);
 
   useEffect(() => {
     fetchDrivers();
@@ -41,7 +42,11 @@ const Drivers = () => {
     { 
       header: 'Expiry Date', 
       accessor: 'license_expiry_date',
-      render: (row) => new Date(row.license_expiry_date).toLocaleDateString()
+      render: (row) => {
+        if (!row.license_expiry_date) return <span className="text-gray-400">N/A</span>;
+        const date = new Date(row.license_expiry_date);
+        return isNaN(date) ? 'Invalid Date' : date.toLocaleDateString();
+      }
     },
     { header: 'Contact', accessor: 'contact_number' },
     { 
@@ -60,10 +65,12 @@ const Drivers = () => {
     }
   ];
 
-  const filteredDrivers = drivers.filter(driver => 
-    driver.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    driver.license_number.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredDrivers = (drivers || []).filter(driver => {
+    const safeName = driver.name || '';
+    const safeLicense = driver.license_number || '';
+    return safeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           safeLicense.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   return (
     <div className="p-8 h-full flex flex-col">
@@ -74,7 +81,10 @@ const Drivers = () => {
         </div>
         <button 
           className="inline-flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-emerald-700 transition-colors shadow-sm"
-          onClick={() => alert("Registration Modal coming in next step!")}
+          onClick={() => {
+            setSelectedDriver(null);
+            setIsModalOpen(true);
+          }}
         >
           <Plus size={16} />
           Register Driver
@@ -105,10 +115,20 @@ const Drivers = () => {
           <DataTable 
             columns={columns} 
             data={filteredDrivers} 
-            onRowClick={(row) => console.log("Edit driver:", row.id)}
+            onRowClick={(row) => {
+              setSelectedDriver(row);
+              setIsModalOpen(true);
+            }}
           />
         )}
       </div>
+
+      <DriverFormModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        driver={selectedDriver}
+        onSuccess={fetchDrivers}
+      />
     </div>
   );
 };
