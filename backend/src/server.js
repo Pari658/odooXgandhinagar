@@ -7,6 +7,12 @@ import fuelRoutes from './routes/fuel.routes.js';
 import expenseRoutes from './routes/expenses.routes.js';
 import reportRoutes from './routes/reports.routes.js';
 import vehicleRoutes from './routes/vehicles.routes.js';
+import driversRoutes from './routes/drivers.routes.js';
+import tripRoutes from './routes/trips.routes.js';
+import maintenanceRoutes from './routes/maintenance.routes.js';
+import webhookRoutes from './routes/webhooks.routes.js';
+import { errorHandler } from './middleware/errorHandler.js';
+import { clerkMiddleware } from '@clerk/express';
 
 dotenv.config();
 
@@ -22,24 +28,27 @@ app.use(
   })
 );
 
+// 🔐 Clerk authentication middleware
+app.use(clerkMiddleware());
+
+// 🪝 Clerk Webhook endpoint
+app.use(
+  '/api/webhooks',
+  express.raw({ type: 'application/json' }),
+  webhookRoutes
+);
+
 app.use(express.json());
 
-// Register application routes
+// Register API routes
 app.use('/api/fuel', fuelRoutes);
 app.use('/api/expenses', expenseRoutes);
-app.use('/api/reports', reportRoutes);
-app.use('/api/dashboard', reportRoutes);
+app.use('/api/dashboard', reportRoutes); // Serves their dashboard stats
+app.use('/api/reports', reportRoutes);   // Serves our KPIs, vehicle reports, and export
 app.use('/api/vehicles', vehicleRoutes);
-
-// Helper route for trips selection pool
-app.get('/api/trips', async (req, res) => {
-  try {
-    const result = await query("SELECT t.id, t.source, t.destination, t.vehicle_id, v.registration_number FROM trips t JOIN vehicles v ON t.vehicle_id = v.id ORDER BY t.id DESC;");
-    return res.status(200).json({ success: true, data: result.rows });
-  } catch (err) {
-    return res.status(500).json({ success: false, error: err.message });
-  }
-});
+app.use('/api/drivers', driversRoutes);
+app.use('/api/trips', tripRoutes);
+app.use('/api/maintenance', maintenanceRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
@@ -48,6 +57,9 @@ app.get('/health', (req, res) => res.json({ status: 'ok' }));
 app.use((req, res) => {
   res.status(404).json({ success: false, message: 'Route not found.' });
 });
+
+// Global error handler middleware
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

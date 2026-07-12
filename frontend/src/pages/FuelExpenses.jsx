@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Fuel, Plus, Info, FileText, Calendar, DollarSign, ArrowRight } from 'lucide-react';
+import { Fuel, Plus, Info, FileText, DollarSign, ArrowRight } from 'lucide-react';
+import { useClerkAxios } from '../lib/apiClient';
 
 export default function FuelExpenses() {
+  const api = useClerkAxios();
   const [activeTab, setActiveTab] = useState('fuel'); // 'fuel' or 'expenses'
   const [fuelLogs, setFuelLogs] = useState([]);
   const [expenses, setExpenses] = useState([]);
@@ -33,28 +35,21 @@ export default function FuelExpenses() {
 
   const [formError, setFormError] = useState('');
 
-  // Fetch Data
+  // Fetch Data using Clerk Axios Client
   const fetchData = async () => {
     setLoading(true);
     try {
       const [fuelRes, expenseRes, vehicleRes, tripRes] = await Promise.all([
-        fetch('/api/fuel'),
-        fetch('/api/expenses'),
-        fetch('/api/vehicles'),
-        fetch('/api/trips')
+        api.get('/fuel'),
+        api.get('/expenses'),
+        api.get('/vehicles'),
+        api.get('/trips')
       ]);
 
-      const [fuelData, expenseData, vehicleData, tripData] = await Promise.all([
-        fuelRes.json(),
-        expenseRes.json(),
-        vehicleRes.json(),
-        tripRes.json()
-      ]);
-
-      if (fuelData.success) setFuelLogs(fuelData.data);
-      if (expenseData.success) setExpenses(expenseData.data);
-      if (vehicleData.success) setVehicles(vehicleData.data);
-      if (tripData.success) setTrips(tripData.data);
+      if (fuelRes.data.success) setFuelLogs(fuelRes.data.data);
+      if (expenseRes.data.success) setExpenses(expenseRes.data.data);
+      if (vehicleRes.data.success) setVehicles(vehicleRes.data.data);
+      if (tripRes.data.success) setTrips(tripRes.data.data);
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
     } finally {
@@ -64,7 +59,7 @@ export default function FuelExpenses() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [api]);
 
   // Filter trips for selected vehicle in forms
   const getFilteredTrips = (vehicleId) => {
@@ -84,20 +79,15 @@ export default function FuelExpenses() {
     if (!cost || parseFloat(cost) < 0) return setFormError('Cost must be greater than or equal to 0.');
 
     try {
-      const res = await fetch('/api/fuel', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          vehicle_id: parseInt(vehicle_id),
-          trip_id: trip_id ? parseInt(trip_id) : null,
-          liters: parseFloat(liters),
-          cost: parseFloat(cost),
-          logged_date
-        })
+      const res = await api.post('/fuel', {
+        vehicle_id: parseInt(vehicle_id),
+        trip_id: trip_id ? parseInt(trip_id) : null,
+        liters: parseFloat(liters),
+        cost: parseFloat(cost),
+        logged_date
       });
 
-      const data = await res.json();
-      if (data.success) {
+      if (res.data.success) {
         setShowFuelModal(false);
         setFuelForm({
           vehicle_id: '',
@@ -108,10 +98,10 @@ export default function FuelExpenses() {
         });
         fetchData();
       } else {
-        setFormError(data.message || 'Failed to submit fuel log.');
+        setFormError(res.data.message || 'Failed to submit fuel log.');
       }
     } catch (err) {
-      setFormError('Server error. Please try again.');
+      setFormError(err.response?.data?.message || 'Server error. Please try again.');
     }
   };
 
@@ -127,20 +117,15 @@ export default function FuelExpenses() {
     if (!cost || parseFloat(cost) < 0) return setFormError('Cost must be greater than or equal to 0.');
 
     try {
-      const res = await fetch('/api/expenses', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          vehicle_id: parseInt(vehicle_id),
-          trip_id: trip_id ? parseInt(trip_id) : null,
-          expense_type: expense_type.trim(),
-          cost: parseFloat(cost),
-          logged_date
-        })
+      const res = await api.post('/expenses', {
+        vehicle_id: parseInt(vehicle_id),
+        trip_id: trip_id ? parseInt(trip_id) : null,
+        expense_type: expense_type.trim(),
+        cost: parseFloat(cost),
+        logged_date
       });
 
-      const data = await res.json();
-      if (data.success) {
+      if (res.data.success) {
         setShowExpenseModal(false);
         setExpenseForm({
           vehicle_id: '',
@@ -151,10 +136,10 @@ export default function FuelExpenses() {
         });
         fetchData();
       } else {
-        setFormError(data.message || 'Failed to submit expense log.');
+        setFormError(res.data.message || 'Failed to submit expense log.');
       }
     } catch (err) {
-      setFormError('Server error. Please try again.');
+      setFormError(err.response?.data?.message || 'Server error. Please try again.');
     }
   };
 

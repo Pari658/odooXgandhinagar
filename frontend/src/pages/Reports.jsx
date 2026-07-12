@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Download, TrendingUp, DollarSign, Fuel, Activity, Search } from 'lucide-react';
+import { useClerkAxios } from '../lib/apiClient';
 
 export default function Reports() {
+  const api = useClerkAxios();
   const [kpis, setKpis] = useState({
     fleet_utilization: 0,
     total_operational_cost: 0,
@@ -20,17 +22,12 @@ export default function Reports() {
     setLoading(true);
     try {
       const [kpiRes, vehicleRes] = await Promise.all([
-        fetch('/api/reports/kpis'),
-        fetch('/api/reports/vehicles')
+        api.get('/reports/kpis'),
+        api.get('/reports/vehicles')
       ]);
 
-      const [kpiData, vehicleData] = await Promise.all([
-        kpiRes.json(),
-        vehicleRes.json()
-      ]);
-
-      if (kpiData.success) setKpis(kpiData.data);
-      if (vehicleData.success) setVehicleReports(vehicleData.data);
+      if (kpiRes.data.success) setKpis(kpiRes.data.data);
+      if (vehicleRes.data.success) setVehicleReports(vehicleRes.data.data);
     } catch (err) {
       console.error('Error fetching reports data:', err);
     } finally {
@@ -40,7 +37,7 @@ export default function Reports() {
 
   useEffect(() => {
     fetchReportsData();
-  }, []);
+  }, [api]);
 
   // Filter logic
   const filteredVehicles = vehicleReports.filter(v => {
@@ -69,7 +66,8 @@ export default function Reports() {
         </div>
         <div className="mt-4 md:mt-0">
           <a
-            href="/api/reports/export"
+            href="http://localhost:5000/api/reports/export"
+            download
             className="inline-flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-600 transition-colors"
           >
             <Download className="w-4 h-4 stroke-[2]" />
