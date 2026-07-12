@@ -4,6 +4,7 @@ import cors from 'cors';
 import { query } from './config/db.js';
 import fuelRoutes from './routes/fuel.routes.js';
 import expenseRoutes from './routes/expenses.routes.js';
+import reportRoutes from './routes/reports.routes.js';
 
 dotenv.config();
 
@@ -13,6 +14,7 @@ app.use(express.json());
 
 app.use('/api/fuel', fuelRoutes);
 app.use('/api/expenses', expenseRoutes);
+app.use('/api/reports', reportRoutes);
 
 app.get('/api/vehicles', async (req, res) => {
   try {
