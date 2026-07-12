@@ -9,7 +9,17 @@ import vehicleRoutes from './routes/vehicles.routes.js';
 import tripRoutes from './routes/trips.routes.js';
 import maintenanceRoutes from './routes/maintenance.routes.js';
 import reportRoutes from './routes/reports.routes.js';
+import { query } from './config/db.js';
+import fuelRoutes from './routes/fuel.routes.js';
+import expenseRoutes from './routes/expenses.routes.js';
+import reportRoutes from './routes/reports.routes.js';
+import vehicleRoutes from './routes/vehicles.routes.js';
+import driversRoutes from './routes/drivers.routes.js';
+import tripRoutes from './routes/trips.routes.js';
+import maintenanceRoutes from './routes/maintenance.routes.js';
+import webhookRoutes from './routes/webhooks.routes.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { clerkMiddleware } from '@clerk/express';
 
 dotenv.config();
 
@@ -42,10 +52,15 @@ app.use('/api/trips', tripRoutes);
 app.use('/api/maintenance', maintenanceRoutes);
 app.use('/api/reports', reportRoutes);
 
+// Health check endpoint
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
+
+// 404 Route handler
 app.use((req, res) => {
   res.status(404).json({ success: false, message: 'Route not found.' });
 });
 
+// Global error handler middleware
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
