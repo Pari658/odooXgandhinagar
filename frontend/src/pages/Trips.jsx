@@ -33,7 +33,8 @@ const Trips = () => {
     fetchTrips();
     fetchVehicles();
     fetchDrivers();
-  }, [apiClient]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /**
    * Fetch all trips
@@ -259,7 +260,7 @@ const Trips = () => {
     },
     {
       header: 'Actions',
-      accessor: 'id',
+      accessor: 'actions',
       render: (row) => (
         <div className="flex items-center gap-2">
           {row.status === 'Draft' && (
@@ -376,7 +377,7 @@ const Trips = () => {
               <tr>
                 {columns.map((col) => (
                   <th
-                    key={col.header}
+                    key={col.accessor}
                     className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wide"
                   >
                     {col.header}

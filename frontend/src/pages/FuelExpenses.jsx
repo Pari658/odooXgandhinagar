@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { Plus, Fuel, DollarSign, Info, ArrowRight, FileText } from 'lucide-react';
 import { useApi } from '../lib/apiClient';
 
 const FuelExpenses = () => {
   const api = useApi();
+  const [fuelLogs, setFuelLogs] = useState([]);
   const [expenses, setExpenses] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('fuel');
 
   // Modal States
   const [showFuelModal, setShowFuelModal] = useState(false);
@@ -32,7 +35,6 @@ const FuelExpenses = () => {
 
   const [formError, setFormError] = useState('');
 
-  // Fetch Data using Clerk Axios Client
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -56,7 +58,8 @@ const FuelExpenses = () => {
 
   useEffect(() => {
     fetchData();
-  }, [api]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Filter trips for selected vehicle in forms
   const getFilteredTrips = (vehicleId) => {
@@ -543,4 +546,6 @@ const FuelExpenses = () => {
       )}
     </div>
   );
-}
+};
+
+export default FuelExpenses;

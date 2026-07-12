@@ -1,19 +1,15 @@
 import express from 'express';
-import { getDashboardStats } from '../controllers/reportController.js';
-import authenticateJWT from '../middleware/auth.js';
-
-const router = express.Router();
-
-router.use(authenticateJWT);
-
 import { 
   getKpis, 
   getVehicleReports, 
   exportCsv, 
   getDashboardStats 
 } from '../controllers/reportController.js';
+import authenticateJWT from '../middleware/auth.js';
 
 const router = express.Router();
+
+router.use(authenticateJWT);
 
 // Landing Page Dashboard Stats
 router.get('/stats', getDashboardStats);
