@@ -1,31 +1,32 @@
 import React, { useState, useEffect } from 'react';
+import { useClerkAxios } from '../lib/apiClient';
 import StatCard from '../components/dashboard/StatCard';
 import { Truck, Activity, Wrench, CheckCircle, Navigation, Users, Percent } from 'lucide-react';
 
 const Dashboard = () => {
+  const api = useClerkAxios();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // We are skipping Clerk auth for now as requested, so no headers needed
     const fetchStats = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/dashboard/stats');
-        if (!response.ok) {
-          throw new Error('Failed to fetch stats');
+        const response = await api.get('/dashboard/stats');
+        if (response.data.success) {
+          setStats(response.data.data);
+        } else {
+          setError('Failed to fetch stats');
         }
-        const data = await response.json();
-        setStats(data.data);
       } catch (err) {
-        setError(err.message);
+        setError(err.response?.data?.message || err.message);
       } finally {
         setLoading(false);
       }
     };
 
     fetchStats();
-  }, []);
+  }, [api]);
 
   return (
     <div className="p-8">
