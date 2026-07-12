@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useAuth as useClerkAuth } from '@clerk/clerk-react';
 import { Users, ChevronDown, RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react';
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import apiClient from '../lib/apiClient';
 
 const VALID_ROLES = ['Fleet Manager', 'Driver', 'Safety Officer', 'Financial Analyst'];
 
@@ -13,7 +11,6 @@ const ROLE_BADGE_STYLES = {
   'Financial Analyst':  'bg-amber-50 text-amber-700',
 };
 
-// ── Inline toast (no external dependency) ────────────────────────────────────
 const Toast = ({ message, type, onDismiss }) => {
   useEffect(() => {
     const t = setTimeout(onDismiss, 4000);
@@ -34,13 +31,11 @@ const Toast = ({ message, type, onDismiss }) => {
   );
 };
 
-// ── Main component ────────────────────────────────────────────────────────────
 const AdminUsers = () => {
-  const { getToken } = useClerkAuth();
   const [users, setUsers]       = useState([]);
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState(null);
-  const [updating, setUpdating] = useState({}); // { [userId]: true }
+  const [updating, setUpdating] = useState({});
   const [toast, setToast]       = useState(null);
 
   const showToast = (message, type = 'success') => setToast({ message, type });
@@ -50,51 +45,32 @@ const AdminUsers = () => {
     try {
       setLoading(true);
       setError(null);
-      const token = await getToken();
-      const res = await fetch(`${API_BASE}/api/auth/users`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Failed to load users.');
-      setUsers(data.data);
+      const res = await apiClient.get('/auth/users');
+      setUsers(res.data.data);
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message || 'Failed to load users.');
     } finally {
       setLoading(false);
     }
-  }, [getToken]);
+  }, []);
 
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
   const handleRoleChange = async (userId, newRole) => {
     setUpdating((prev) => ({ ...prev, [userId]: true }));
     try {
-      const token = await getToken();
-      const res = await fetch(`${API_BASE}/api/auth/users/${userId}/role`, {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ role: newRole }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Update failed.');
-
-      // Optimistically update local state.
+      const res = await apiClient.patch(`/auth/users/${userId}/role`, { role: newRole });
       setUsers((prev) => prev.map((u) => u.id === userId ? { ...u, role: newRole } : u));
-      showToast(data.message || 'Role updated.', 'success');
+      showToast(res.data.message || 'Role updated.', 'success');
     } catch (err) {
-      showToast(err.message, 'error');
+      showToast(err.response?.data?.message || err.message || 'Update failed.', 'error');
     } finally {
       setUpdating((prev) => ({ ...prev, [userId]: false }));
     }
   };
 
-  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="p-8">
-      {/* Page header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-gray-900">User Management</h1>
@@ -112,7 +88,6 @@ const AdminUsers = () => {
         </button>
       </div>
 
-      {/* Error state */}
       {error && (
         <div className="flex items-center gap-2 px-4 py-3 mb-6 rounded-lg border border-red-100 bg-red-50 text-sm text-red-700">
           <AlertCircle size={15} />
@@ -120,7 +95,6 @@ const AdminUsers = () => {
         </div>
       )}
 
-      {/* Table */}
       <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
         <div className="px-5 py-4 border-b border-gray-200 flex items-center gap-2">
           <Users size={16} className="text-gray-400" />
@@ -182,7 +156,6 @@ const AdminUsers = () => {
         )}
       </div>
 
-      {/* Toast */}
       {toast && <Toast message={toast.message} type={toast.type} onDismiss={dismissToast} />}
     </div>
   );

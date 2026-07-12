@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useClerkAxios } from '../lib/apiClient';
+import { useApi } from '../lib/apiClient';
 import DataTable from '../components/tables/DataTable';
 import StatusBadge from '../components/ui/StatusBadge';
 import { Plus, Edit2, Trash2, CheckCircle, AlertCircle, Send, X } from 'lucide-react';
 
 const Trips = () => {
-  const apiClient = useClerkAxios();
+  const apiClient = useApi();
   const [trips, setTrips] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [drivers, setDrivers] = useState([]);

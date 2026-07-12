@@ -1,7 +1,8 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { SignedIn, SignedOut, SignInButton } from "@clerk/clerk-react";
-
+import { AuthProvider, useAppAuth } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import LoginForm from './components/auth/LoginForm';
 import Layout from './components/layout/Layout';
 import Dashboard from './pages/Dashboard';
 import Drivers from './pages/Drivers';
@@ -9,72 +10,67 @@ import Vehicles from './pages/Vehicles';
 import Maintenance from './pages/Maintenance';
 import Trips from './pages/Trips';
 import FuelExpenses from './pages/FuelExpenses';
-import Reports from './pages/Reports';
+import AdminUsers from './pages/AdminUsers';
+import Signup from './pages/Signup';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
-export default function App() {
+const AppRoutes = () => {
+  const { isAuthenticated, loading } = useAppAuth();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-50">
+        <p className="text-sm text-gray-500">Loading...</p>
+      </div>
+    );
+  }
+
   return (
-    <>
-      {/* 🔴 CASE 1: Terminal is Unauthenticated */}
-      <SignedOut>
-        <div style={{
-          display: 'flex', 
-          flexDirection: 'column', 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          height: '100vh', 
-          fontFamily: 'system-ui, sans-serif',
-          background: '#022c22' // TransitOps branding emerald-950
-        }}>
-          <div style={{
-            padding: '40px', 
-            background: '#ffffff', 
-            borderRadius: '8px', 
-            border: '1px solid #e5e7eb',
-            textAlign: 'center',
-            maxWidth: '400px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
-          }}>
-            <h1 style={{ margin: '0 0 10px 0', fontSize: '22px', color: '#111827', fontWeight: 600 }}>🚚 TransitOps Engine</h1>
-            <p style={{ margin: '0 0 24px 0', color: '#6b7280', fontSize: '13px', lineHeight: '1.5' }}>
-              Access Denied. Please authenticate your user credentials to access the fleet routing dashboards.
-            </p>
-            <SignInButton mode="modal">
-              <button style={{ 
-                padding: '10px 20px', 
-                cursor: 'pointer', 
-                background: '#059669', // TransitOps branding emerald-600
-                color: '#fff', 
-                border: 'none', 
-                borderRadius: '6px', 
-                fontWeight: '500',
-                width: '100%',
-                fontSize: '14px',
-                transition: 'background 0.15s ease'
-              }}>
-                Sign In to Platform
-              </button>
-            </SignInButton>
-          </div>
-        </div>
-      </SignedOut>
+    <Routes>
+      <Route
+        path="/login"
+        element={isAuthenticated ? <Navigate to="/" replace /> : <LoginForm />}
+      />
+      <Route
+        path="/signup"
+        element={isAuthenticated ? <Navigate to="/" replace /> : <Signup />}
+      />
+      <Route
+        path="/forgot-password"
+        element={isAuthenticated ? <Navigate to="/" replace /> : <ForgotPassword />}
+      />
+      <Route
+        path="/reset-password"
+        element={isAuthenticated ? <Navigate to="/" replace /> : <ResetPassword />}
+      />
 
-      {/* 🟢 CASE 2: Terminal Authenticated -> Enable Layout Routes */}
-      <SignedIn>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="drivers" element={<Drivers />} />
-            <Route path="vehicles" element={<Vehicles />} />
-            <Route path="maintenance" element={<Maintenance />} />
-            <Route path="trips" element={<Trips />} />
-            <Route path="fuel" element={<FuelExpenses />} />
-            <Route path="reports" element={<Reports />} />
-            
-            {/* Redirect unknown routes to Dashboard */}
-            <Route path="*" element={<Navigate to="/" replace />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="drivers" element={<Drivers />} />
+          <Route path="vehicles" element={<Vehicles />} />
+          <Route path="maintenance" element={<Maintenance />} />
+          <Route path="trips" element={<Trips />} />
+          <Route path="fuel" element={<FuelExpenses />} />
+
+          <Route element={<ProtectedRoute allowedRoles={['Fleet Manager']} />}>
+            <Route path="admin/users" element={<AdminUsers />} />
           </Route>
-        </Routes>
-      </SignedIn>
-    </>
+        </Route>
+      </Route>
+
+      <Route path="*" element={<Navigate to={isAuthenticated ? '/' : '/login'} replace />} />
+    </Routes>
+  );
+};
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
   );
 }
+
+export default App;

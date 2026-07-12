@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useClerkAxios } from '../lib/apiClient';
+import { useApi } from '../lib/apiClient';
 import DataTable from '../components/tables/DataTable';
 import StatusBadge from '../components/ui/StatusBadge';
 import DriverFormModal from '../components/drivers/DriverFormModal';
 import { Plus, Search } from 'lucide-react';
 
 const Drivers = () => {
-  const api = useClerkAxios();
+  const api = useApi();
   const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

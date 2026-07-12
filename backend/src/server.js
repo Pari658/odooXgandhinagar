@@ -2,6 +2,13 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import helmet from 'helmet';
+import authRoutes from './routes/auth.routes.js';
+import reportsRoutes from './routes/reports.routes.js';
+import driversRoutes from './routes/drivers.routes.js';
+import vehicleRoutes from './routes/vehicles.routes.js';
+import tripRoutes from './routes/trips.routes.js';
+import maintenanceRoutes from './routes/maintenance.routes.js';
+import reportRoutes from './routes/reports.routes.js';
 import { query } from './config/db.js';
 import fuelRoutes from './routes/fuel.routes.js';
 import expenseRoutes from './routes/expenses.routes.js';
@@ -16,6 +23,11 @@ import { clerkMiddleware } from '@clerk/express';
 
 dotenv.config();
 
+if (!process.env.JWT_SECRET) {
+  console.error('❌ CRITICAL ERROR: JWT_SECRET is missing in your .env file!');
+  process.exit(1);
+}
+
 const app = express();
 
 app.set('trust proxy', 1);
@@ -23,32 +35,22 @@ app.set('trust proxy', 1);
 app.use(helmet());
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: process.env.FRONTEND_URL,
     credentials: true,
   })
 );
 
-// 🔐 Clerk authentication middleware
-app.use(clerkMiddleware());
-
-// 🪝 Clerk Webhook endpoint (must be registered before express.json() raw parsing)
-app.use(
-  '/api/webhooks',
-  express.raw({ type: 'application/json' }),
-  webhookRoutes
-);
-
 app.use(express.json());
 
-// Register API routes
-app.use('/api/fuel', fuelRoutes);
-app.use('/api/expenses', expenseRoutes);
-app.use('/api/dashboard', reportRoutes); // Serves their dashboard stats
-app.use('/api/reports', reportRoutes);   // Serves our KPIs, vehicle reports, and export
-app.use('/api/vehicles', vehicleRoutes);
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
+
+app.use('/api/auth', authRoutes);
+app.use('/api/dashboard', reportsRoutes);
 app.use('/api/drivers', driversRoutes);
+app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/trips', tripRoutes);
 app.use('/api/maintenance', maintenanceRoutes);
+app.use('/api/reports', reportRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => res.json({ status: 'ok' }));

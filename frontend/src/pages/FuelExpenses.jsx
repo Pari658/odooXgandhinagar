@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Fuel, Plus, Info, FileText, DollarSign, ArrowRight } from 'lucide-react';
-import { useClerkAxios } from '../lib/apiClient';
+import { useApi } from '../lib/apiClient';
 
-export default function FuelExpenses() {
-  const api = useClerkAxios();
-  const [activeTab, setActiveTab] = useState('fuel'); // 'fuel' or 'expenses'
-  const [fuelLogs, setFuelLogs] = useState([]);
+const FuelExpenses = () => {
+  const api = useApi();
   const [expenses, setExpenses] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [trips, setTrips] = useState([]);

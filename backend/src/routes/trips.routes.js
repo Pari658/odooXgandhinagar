@@ -7,19 +7,19 @@ import {
   updateTrip,
   deleteTrip,
 } from '../controllers/tripController.js';
-import authMiddleware from '../middleware/auth.js';
+import authenticateJWT from '../middleware/auth.js';
 import { checkRole } from '../middleware/rbac.js';
 
 const router = express.Router();
 
 /**
  * Trip Routes (Protected by Authentication)
- * All routes require valid Clerk authentication.
+ * All routes require valid JWT authentication.
  * Admin/restricted endpoints also check for 'Fleet Manager' role.
  */
 
 // Protected: All trip endpoints require authentication
-router.use(authMiddleware);
+router.use(authenticateJWT);
 
 /**
  * POST /api/trips

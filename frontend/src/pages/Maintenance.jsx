@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { useClerkAxios } from "../lib/apiClient";
+import { useApi } from "../lib/apiClient";
 
 const Maintenance = () => {
-  const api = useClerkAxios();
+  const api = useApi();
   const [vehicles, setVehicles] = useState([]);
   const [logs, setLogs] = useState([]);
   const [error, setError] = useState(null);
