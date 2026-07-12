@@ -12,6 +12,7 @@ import Trips from './pages/Trips';
 import FuelExpenses from './pages/FuelExpenses';
 import Reports from './pages/Reports';
 import AdminUsers from './pages/AdminUsers';
+import Home from './pages/Home';
 import Signup from './pages/Signup';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
@@ -47,7 +48,8 @@ const AppRoutes = () => {
       />
 
       <Route element={<ProtectedRoute />}>
-        <Route path="/" element={<Layout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/dashboard" element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path="drivers" element={<Drivers />} />
           <Route path="vehicles" element={<Vehicles />} />
