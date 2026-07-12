@@ -1,11 +1,14 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/layout/Layout.jsx';
+import Dashboard from './pages/Dashboard.jsx';
+import Drivers from './pages/Drivers.jsx';
+import Vehicles from './pages/Vehicles.jsx';
 import FuelExpenses from './pages/FuelExpenses.jsx';
 import Reports from './pages/Reports.jsx';
 
 const Placeholder = ({ title }) => (
-  <div>
+  <div className="p-8">
     <div className="flex items-center space-x-2 text-sm text-gray-500 mb-2">
       <span>TransitOps</span>
       <span>/</span>
@@ -21,19 +24,22 @@ const Placeholder = ({ title }) => (
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          {/* Default landing page is Dashboard placeholder */}
-          <Route index element={<Placeholder title="Dashboard" />} />
-          <Route path="vehicles" element={<Placeholder title="Vehicles" />} />
-          <Route path="drivers" element={<Placeholder title="Drivers" />} />
-          <Route path="trips" element={<Placeholder title="Trips" />} />
-          <Route path="fuel-expenses" element={<FuelExpenses />} />
-          <Route path="reports" element={<Reports />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        {/* Actual completed views */}
+        <Route index element={<Dashboard />} />
+        <Route path="drivers" element={<Drivers />} />
+        <Route path="vehicles" element={<Vehicles />} />
+        <Route path="fuel" element={<FuelExpenses />} />
+        <Route path="reports" element={<Reports />} />
+
+        {/* Placeholders for pending features */}
+        <Route path="trips" element={<Placeholder title="Trips" />} />
+        <Route path="maintenance" element={<Placeholder title="Maintenance" />} />
+
+        {/* Redirect unknown routes to Dashboard */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Route>
+    </Routes>
   );
 }

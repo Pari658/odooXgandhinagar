@@ -165,7 +165,7 @@ export default function FuelExpenses() {
   const avgFuelPrice = totalLiters > 0 ? (totalFuelCost / totalLiters).toFixed(2) : '0.00';
 
   return (
-    <div className="w-full">
+    <div className="w-full p-8">
       {/* Breadcrumb & Title */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 pb-5 border-b border-gray-200">
         <div>

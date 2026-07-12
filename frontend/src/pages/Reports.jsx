@@ -56,7 +56,7 @@ export default function Reports() {
   const types = [...new Set(vehicleReports.map(v => v.type).filter(Boolean))];
 
   return (
-    <div className="w-full">
+    <div className="w-full p-8">
       {/* Header and Download Button */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 pb-5 border-b border-gray-200">
         <div>
