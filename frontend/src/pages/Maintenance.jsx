@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-
-const API_URL = "http://localhost:5001/api/maintenance";
-const VEHICLE_API = "http://localhost:5001/api/vehicles";
+import { useClerkAxios } from "../lib/apiClient";
 
 const Maintenance = () => {
+  const api = useClerkAxios();
   const [vehicles, setVehicles] = useState([]);
   const [logs, setLogs] = useState([]);
   const [error, setError] = useState(null);
@@ -16,17 +15,14 @@ const Maintenance = () => {
 
   const fetchVehicles = async () => {
     try {
-      const res = await fetch(VEHICLE_API);
-
-      if (!res.ok) throw new Error("Failed to fetch vehicles");
-
-      const data = await res.json();
-
-      setVehicles(
-        data.vehicles.filter(
-          (vehicle) => vehicle.status === "Available"
-        )
-      );
+      const response = await api.get("/vehicles");
+      if (response.data.success) {
+        setVehicles(
+          response.data.vehicles.filter(
+            (vehicle) => vehicle.status === "Available"
+          )
+        );
+      }
     } catch (err) {
       setError(err.message);
     }
@@ -34,13 +30,10 @@ const Maintenance = () => {
 
   const fetchLogs = async () => {
     try {
-      const res = await fetch(API_URL);
-
-      if (!res.ok) throw new Error("Failed to fetch maintenance logs");
-
-      const data = await res.json();
-
-      setLogs(data.logs);
+      const response = await api.get("/maintenance");
+      if (response.data.success) {
+        setLogs(response.data.logs || []);
+      }
     } catch (err) {
       setError(err.message);
     }
@@ -49,7 +42,7 @@ const Maintenance = () => {
   useEffect(() => {
     fetchVehicles();
     fetchLogs();
-  }, []);
+  }, [api]);
 
   const handleChange = (e) => {
     setFormData({
@@ -62,55 +55,40 @@ const Maintenance = () => {
     e.preventDefault();
 
     try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await api.post("/maintenance", formData);
 
-      const data = await res.json();
+      if (response.data.success) {
+        // Reload data
+        fetchLogs();
+        fetchVehicles();
 
-      if (!res.ok) {
-        throw new Error(data.message);
+        // Reset form
+        setFormData({
+          vehicle_id: "",
+          description: "",
+          cost: "",
+          logged_date: "",
+        });
+      } else {
+        setError(response.data.message || "Failed to create maintenance record");
       }
-
-      // Reload data
-      fetchLogs();
-      fetchVehicles();
-
-      // Reset form
-      setFormData({
-        vehicle_id: "",
-        description: "",
-        cost: "",
-        logged_date: "",
-      });
-
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message);
     }
   };
 
   const closeMaintenance = async (id) => {
     try {
-      const res = await fetch(
-        `${API_URL}/${id}/close`,
-        {
-          method: "PUT",
-        }
-      );
+      const response = await api.put(`/maintenance/${id}/close`);
 
-      if (!res.ok) {
-        throw new Error("Failed to close maintenance");
+      if (response.data.success) {
+        fetchLogs();
+        fetchVehicles();
+      } else {
+        setError(response.data.message || "Failed to close maintenance");
       }
-
-      fetchLogs();
-      fetchVehicles();
-
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message);
     }
   };
 

@@ -1,29 +1,30 @@
 import React, { useState, useEffect } from 'react';
+import { useClerkAxios } from '../lib/apiClient';
 
 export default function Vehicles() {
+  const api = useClerkAxios();
   const [vehicles, setVehicles] = useState([]);
   const [error, setError] = useState(null);
   const [form, setForm] = useState({
     registration_number: '',
     model_name: '',
     type: 'Van',
-    region: '', // Matches your custom schema column
+    region: '',
     max_load_capacity: '',
     odometer: '',
     acquisition_cost: '',
     status: 'Available'
   });
 
-  // Base API endpoint URL referencing your Express server port instance
-  const API_URL = 'http://localhost:5001/api/vehicles';
-
   // Fetch live master registry assets on mount
   const fetchVehicles = async () => {
     try {
-      const res = await fetch(API_URL);
-      if (!res.ok) throw new Error('Failed to retrieve fleet master logs.');
-      const data = await res.json();
-      setVehicles(data.vehicles);
+      const response = await api.get('/vehicles');
+      if (response.data.success) {
+        setVehicles(response.data.vehicles);
+      } else {
+        setError('Failed to retrieve fleet master logs.');
+      }
     } catch (err) {
       setError(err.message);
     }
@@ -31,46 +32,40 @@ export default function Vehicles() {
 
   useEffect(() => {
     fetchVehicles();
-  }, []);
+  }, [api]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
 
     try {
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...form,
-          max_load_capacity: Number(form.max_load_capacity),
-          odometer: Number(form.odometer),
-          acquisition_cost: Number(form.acquisition_cost)
-        })
+      const response = await api.post('/vehicles', {
+        ...form,
+        max_load_capacity: Number(form.max_load_capacity),
+        odometer: Number(form.odometer),
+        acquisition_cost: Number(form.acquisition_cost)
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to register vehicle entry.');
+      if (response.data.success) {
+        // Prepend newly added asset directly into current viewport array layout
+        setVehicles([response.data.vehicle, ...vehicles]);
+        
+        // Clear form inputs except defaults
+        setForm({
+          registration_number: '',
+          model_name: '',
+          type: 'Van',
+          region: '',
+          max_load_capacity: '',
+          odometer: '',
+          acquisition_cost: '',
+          status: 'Available'
+        });
+      } else {
+        setError(response.data.message || 'Failed to register vehicle entry.');
       }
-
-      // Prepend newly added asset directly into current viewport array layout
-      setVehicles([data, ...vehicles]);
-      
-      // Clear form inputs except defaults
-      setForm({
-        registration_number: '',
-        model_name: '',
-        type: 'Van',
-        region: '',
-        max_load_capacity: '',
-        odometer: '',
-        acquisition_cost: '',
-        status: 'Available'
-      });
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message);
     }
   };
 
