@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useClerkAxios } from '../lib/apiClient';
+import { useApi } from '../lib/apiClient';
 import StatCard from '../components/dashboard/StatCard';
 import { Truck, Activity, Wrench, CheckCircle, Navigation, Users, Percent } from 'lucide-react';
 
 const Dashboard = () => {
-  const api = useClerkAxios();
+  const api = useApi();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

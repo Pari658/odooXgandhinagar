@@ -4,12 +4,12 @@ import {
   createMaintenance,
   closeMaintenance,
 } from "../controllers/maintenanceController.js";
-import authMiddleware from "../middleware/auth.js";
+import authenticateJWT from "../middleware/auth.js";
 
 const router = express.Router();
 
 // All maintenance endpoints require authentication
-router.use(authMiddleware);
+router.use(authenticateJWT);
 
 // Get all maintenance logs
 router.get("/", getMaintenanceLogs);

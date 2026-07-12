@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useClerkAxios } from '../lib/apiClient';
+import { useApi } from '../lib/apiClient';
 
 const FuelExpenses = () => {
-  const api = useClerkAxios();
+  const api = useApi();
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

@@ -1,9 +1,11 @@
 import express from 'express';
 import { getDashboardStats } from '../controllers/reportController.js';
+import authenticateJWT from '../middleware/auth.js';
 
 const router = express.Router();
 
-// GET /api/dashboard/stats
+router.use(authenticateJWT);
+
 router.get('/stats', getDashboardStats);
 
 export default router;

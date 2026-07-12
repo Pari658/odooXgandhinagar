@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useClerkAxios } from '../lib/apiClient';
+import { useApi } from '../lib/apiClient';
 
 export default function Vehicles() {
-  const api = useClerkAxios();
+  const api = useApi();
   const [vehicles, setVehicles] = useState([]);
   const [error, setError] = useState(null);
   const [form, setForm] = useState({

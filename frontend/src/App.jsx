@@ -1,7 +1,8 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import { SignedIn, SignedOut, SignInButton } from "@clerk/clerk-react";
-
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAppAuth } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import LoginForm from './components/auth/LoginForm';
 import Layout from './components/layout/Layout';
 import Dashboard from './pages/Dashboard';
 import Drivers from './pages/Drivers';
@@ -9,66 +10,66 @@ import Vehicles from './pages/Vehicles';
 import Maintenance from './pages/Maintenance';
 import Trips from './pages/Trips';
 import FuelExpenses from './pages/FuelExpenses';
+import AdminUsers from './pages/AdminUsers';
+import Signup from './pages/Signup';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+
+const AppRoutes = () => {
+  const { isAuthenticated, loading } = useAppAuth();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-50">
+        <p className="text-sm text-gray-500">Loading...</p>
+      </div>
+    );
+  }
+
+  return (
+    <Routes>
+      <Route
+        path="/login"
+        element={isAuthenticated ? <Navigate to="/" replace /> : <LoginForm />}
+      />
+      <Route
+        path="/signup"
+        element={isAuthenticated ? <Navigate to="/" replace /> : <Signup />}
+      />
+      <Route
+        path="/forgot-password"
+        element={isAuthenticated ? <Navigate to="/" replace /> : <ForgotPassword />}
+      />
+      <Route
+        path="/reset-password"
+        element={isAuthenticated ? <Navigate to="/" replace /> : <ResetPassword />}
+      />
+
+      <Route element={<ProtectedRoute />}>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="drivers" element={<Drivers />} />
+          <Route path="vehicles" element={<Vehicles />} />
+          <Route path="maintenance" element={<Maintenance />} />
+          <Route path="trips" element={<Trips />} />
+          <Route path="fuel" element={<FuelExpenses />} />
+
+          <Route element={<ProtectedRoute allowedRoles={['Fleet Manager']} />}>
+            <Route path="admin/users" element={<AdminUsers />} />
+          </Route>
+        </Route>
+      </Route>
+
+      <Route path="*" element={<Navigate to={isAuthenticated ? '/' : '/login'} replace />} />
+    </Routes>
+  );
+};
 
 function App() {
   return (
-    <>
-      {/* 🔴 CASE 1: Terminal is Unauthenticated */}
-      <SignedOut>
-        <div style={{
-          display: 'flex', 
-          flexDirection: 'column', 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          height: '100vh', 
-          fontFamily: 'system-ui, sans-serif',
-          background: '#f8fafc'
-        }}>
-          <div style={{
-            padding: '40px', 
-            background: '#ffffff', 
-            borderRadius: '12px', 
-            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-            textAlign: 'center',
-            maxWidth: '400px'
-          }}>
-            <h1 style={{ margin: '0 0 10px 0', fontSize: '24px', color: '#0f172a' }}>🚚 TransitOps Engine</h1>
-            <p style={{ margin: '0 0 24px 0', color: '#64748b', fontSize: '14px', lineHeight: '1.5' }}>
-              Access Denied. Please authenticate your terminal credentials to access the fleet routing dashboards.
-            </p>
-            <SignInButton mode="modal">
-              <button style={{ 
-                padding: '12px 24px', 
-                cursor: 'pointer', 
-                background: '#2563eb', 
-                color: '#fff', 
-                border: 'none', 
-                borderRadius: '6px', 
-                fontWeight: '600',
-                width: '100%',
-                fontSize: '15px'
-              }}>
-                Sign In to Platform
-              </button>
-            </SignInButton>
-          </div>
-        </div>
-      </SignedOut>
-
-      {/* 🟢 CASE 2: Terminal Authenticated -> Enable Teammate's Layout Routes */}
-      <SignedIn>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="drivers" element={<Drivers />} />
-            <Route path="vehicles" element={<Vehicles />} />
-            <Route path="maintenance" element={<Maintenance />} />
-            <Route path="trips" element={<Trips />} />
-            <Route path="fuel" element={<FuelExpenses />} />
-          </Route>
-        </Routes>
-      </SignedIn>
-    </>
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
   );
 }
 

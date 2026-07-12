@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@clerk/clerk-react';
 import { X } from 'lucide-react';
+import apiClient from '../../lib/apiClient';
 
 const DriverFormModal = ({ isOpen, onClose, driver, onSuccess }) => {
-  const { getToken } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  
+
   const [formData, setFormData] = useState({
     name: '',
     license_number: '',
@@ -17,12 +16,10 @@ const DriverFormModal = ({ isOpen, onClose, driver, onSuccess }) => {
     safety_score: 5.0
   });
 
-  // Populate form if we are editing an existing driver
   useEffect(() => {
     if (driver) {
       setFormData({
         ...driver,
-        // Format date for HTML input type="date"
         license_expiry_date: driver.license_expiry_date ? driver.license_expiry_date.split('T')[0] : ''
       });
     } else {
@@ -50,31 +47,24 @@ const DriverFormModal = ({ isOpen, onClose, driver, onSuccess }) => {
     setError(null);
 
     try {
-      const token = await getToken();
       const isEditing = !!driver;
-      const url = isEditing 
-        ? `http://localhost:5000/api/drivers/${driver.id}` 
-        : `http://localhost:5000/api/drivers`;
-      
-      const response = await fetch(url, {
+
+      const response = await apiClient({
         method: isEditing ? 'PUT' : 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(formData)
+        url: isEditing ? `/drivers/${driver.id}` : '/drivers',
+        data: formData,
       });
 
-      const data = await response.json();
+      const data = response.data;
 
-      if (!response.ok || !data.success) {
+      if (!data.success) {
         throw new Error(data.error || 'Failed to save driver');
       }
 
-      onSuccess(); // Refresh table
-      onClose();   // Close modal
+      onSuccess();
+      onClose();
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message);
     } finally {
       setLoading(false);
     }
@@ -104,17 +94,17 @@ const DriverFormModal = ({ isOpen, onClose, driver, onSuccess }) => {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-              <input 
+              <input
                 type="text" name="name" required
                 value={formData.name} onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
               />
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">License Number</label>
-                <input 
+                <input
                   type="text" name="license_number" required placeholder="e.g. MH1420210001234"
                   value={formData.license_number} onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm uppercase"
@@ -122,7 +112,7 @@ const DriverFormModal = ({ isOpen, onClose, driver, onSuccess }) => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                <select 
+                <select
                   name="license_category" required
                   value={formData.license_category} onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
@@ -137,7 +127,7 @@ const DriverFormModal = ({ isOpen, onClose, driver, onSuccess }) => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
-                <input 
+                <input
                   type="date" name="license_expiry_date" required
                   value={formData.license_expiry_date} onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
@@ -145,7 +135,7 @@ const DriverFormModal = ({ isOpen, onClose, driver, onSuccess }) => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Contact Number</label>
-                <input 
+                <input
                   type="text" name="contact_number" required
                   value={formData.contact_number} onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
@@ -157,7 +147,7 @@ const DriverFormModal = ({ isOpen, onClose, driver, onSuccess }) => {
               <div className="grid grid-cols-2 gap-4 pt-2 border-t border-gray-100">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                  <select 
+                  <select
                     name="status" required
                     value={formData.status} onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
@@ -170,7 +160,7 @@ const DriverFormModal = ({ isOpen, onClose, driver, onSuccess }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Safety Score</label>
-                  <input 
+                  <input
                     type="number" step="0.1" min="0" max="5" name="safety_score" required
                     value={formData.safety_score} onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
@@ -181,13 +171,13 @@ const DriverFormModal = ({ isOpen, onClose, driver, onSuccess }) => {
           </div>
 
           <div className="mt-8 flex justify-end gap-3">
-            <button 
+            <button
               type="button" onClick={onClose}
               className="px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm"
             >
               Cancel
             </button>
-            <button 
+            <button
               type="submit" disabled={loading}
               className="px-4 py-2 bg-emerald-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-emerald-700 shadow-sm disabled:opacity-50"
             >

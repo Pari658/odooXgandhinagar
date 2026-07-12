@@ -1,11 +1,20 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { useClerk } from '@clerk/clerk-react';
-import { LayoutDashboard, Users, Truck, Wrench, Fuel, FileText, Navigation, LogOut } from 'lucide-react';
+import { useAppAuth } from '../../context/AuthContext';
+import { LayoutDashboard, Users, Truck, Wrench, Fuel, FileText, Navigation, LogOut, Shield } from 'lucide-react';
 
 const Layout = () => {
   const location = useLocation();
-  const { signOut } = useClerk();
+  const { user, role, logout } = useAppAuth();
+
+  const initials = user?.name
+    ? user.name
+        .split(' ')
+        .map((part) => part.charAt(0))
+        .join('')
+        .slice(0, 2)
+        .toUpperCase()
+    : '??';
 
   const navItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
@@ -17,9 +26,12 @@ const Layout = () => {
     { name: 'Reports', path: '/reports', icon: FileText },
   ];
 
+  if (role === 'Fleet Manager') {
+    navItems.push({ name: 'User Admin', path: '/admin/users', icon: Shield });
+  }
+
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden font-sans">
-      {/* Sidebar - Strictly emerald-950 as per design guidelines */}
       <aside className="w-64 bg-emerald-950 text-white flex flex-col hidden md:flex">
         <div className="p-6">
           <h1 className="text-xl font-semibold tracking-tight text-white flex items-center gap-2">
@@ -34,15 +46,15 @@ const Layout = () => {
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
-            
+
             return (
               <Link
                 key={item.name}
                 to={item.path}
                 className={`
                   flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors
-                  ${isActive 
-                    ? 'bg-emerald-600 text-white' 
+                  ${isActive
+                    ? 'bg-emerald-600 text-white'
                     : 'text-emerald-100 hover:bg-emerald-900/50 hover:text-white'}
                 `}
               >
@@ -52,19 +64,19 @@ const Layout = () => {
             );
           })}
         </nav>
-        
+
         <div className="p-4 border-t border-emerald-900 space-y-3">
           <div className="flex items-center gap-3 px-3 py-2">
             <div className="w-8 h-8 rounded-full bg-emerald-800 flex items-center justify-center text-sm font-medium">
-              FM
+              {initials}
             </div>
             <div className="flex flex-col">
-              <span className="text-sm font-medium text-white">Fleet Manager</span>
-              <span className="text-xs text-emerald-300">Logged In</span>
+              <span className="text-sm font-medium text-white">{user?.name || 'User'}</span>
+              <span className="text-xs text-emerald-300">{role || 'Unknown Role'}</span>
             </div>
           </div>
           <button
-            onClick={() => signOut()}
+            onClick={logout}
             className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-emerald-100 hover:bg-emerald-900/50 hover:text-white transition-colors"
             title="Sign out"
           >
@@ -74,7 +86,6 @@ const Layout = () => {
         </div>
       </aside>
 
-      {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto">
         <div className="min-h-full">
           <Outlet />
