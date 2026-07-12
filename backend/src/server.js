@@ -1,6 +1,8 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import { query } from './config/db.js'; 
+import reportsRoutes from './routes/reports.routes.js';
 import helmet from 'helmet';
 import { clerkMiddleware } from '@clerk/express';
 
@@ -29,7 +31,8 @@ app.use(
   })
 );
 
-app.use(clerkMiddleware());
+// Temporarily skipping Clerk auth for development
+// app.use(clerkMiddleware());
 
 app.use(
   '/api/webhooks',
@@ -38,6 +41,8 @@ app.use(
 );
 
 app.use(express.json());
+
+app.use('/api/dashboard', reportsRoutes);
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
