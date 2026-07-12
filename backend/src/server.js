@@ -1,11 +1,18 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import { query } from './config/db.js'; 
+import cors from 'cors';
+import { query } from './config/db.js';
+import fuelRoutes from './routes/fuel.routes.js';
+import expenseRoutes from './routes/expenses.routes.js';
 
 dotenv.config();
 
 const app = express();
+app.use(cors());
 app.use(express.json());
+
+app.use('/api/fuel', fuelRoutes);
+app.use('/api/expenses', expenseRoutes);
 
 app.get('/api/test-db', async (req, res) => {
   try {
